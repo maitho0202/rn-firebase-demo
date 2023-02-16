@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,6 +14,11 @@ import {
   View,
   Text,
   StatusBar,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+  FlatList,
+  Alert,
 } from 'react-native';
 
 import {
@@ -24,91 +29,214 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const App = () => {
+import * as firebase from 'firebase';
+
+const WIDTH = Dimensions.get('window').width;
+
+export default App = () => {
+  const [id, setId] = useState(null);
+  const [name, setName] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const firebaseConfig = {
+      apiKey: 'AIzaSyD25ESalWlwuCk-creZeopzVePEEVpJreE',
+      authDomain: 'fir-rn-16ca9.firebaseapp.com',
+      databaseURL: 'https://fir-rn-16ca9-default-rtdb.firebaseio.com',
+      projectId: 'fir-rn-16ca9',
+      storageBucket: 'fir-rn-16ca9.appspot.com',
+      messagingSenderId: '877016773233',
+      appId: '1:877016773233:web:71010515f63e856dc7a1d0',
+    };
+
+    if (!firebase.apps.length) {
+      // Initialize Firebase
+      const firebaseApp = firebase.initializeApp(firebaseConfig);
+      console.log('Kết nối thành công');
+    }
+
+    get_Data();
+  }, []);
+
+  addDataBase = (id, name, address) => {
+    firebase
+      .database()
+      .ref('user/' + id)
+      .set(
+        {
+          Name: name,
+          Address: address,
+        },
+        (error) => {
+          if (error) {
+            alert('Lỗi cmrn !!!');
+          } else {
+            alert('Thành công !!!');
+            setId('');
+            setName('');
+            setAddress('');
+          }
+        },
+      );
+  };
+
+  updateDataBase = (id, name, address) => {
+    firebase
+      .database()
+      .ref('user/' + id)
+      .set(
+        {
+          Name: name,
+          Address: address,
+        },
+        (error) => {
+          if (error) {
+            alert('Lỗi cmrn !!!');
+          } else {
+            alert('Thành công !!!');
+          }
+        },
+      );
+  };
+
+  deleteDataBase = (id) => {
+    firebase
+      .database()
+      .ref('user/' + id)
+      .remove();
+    alert('Xóa thành công !!!');
+  };
+
+  get_Data = () => {
+    firebase
+      .database()
+      .ref('user/')
+      .on('value', (snapshot) => {
+        let array = [];
+        snapshot.forEach((childSnapshot) => {
+          const childData = childSnapshot.val();
+          array.push({
+            id: childSnapshot.key,
+            name: childData.Name,
+            address: childData.Address,
+          });
+        });
+        // console.log(array);
+        setData(array);
+      });
+  };
+
+  createThreeButtonAlert = (item) =>
+    Alert.alert('Alert Title', 'My Alert Msg', [
+      {
+        text: 'Xóa',
+        onPress: () => {
+          console.log('Ask me later pressed');
+          deleteDataBase(item.id);
+        },
+      },
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {
+        text: 'Sửa',
+        onPress: () => {
+          console.log('OK Pressed');
+          updateDataBase(item.id, item.name, item.address);
+        },
+      },
+    ]);
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
+    <View style={styles.container}>
+      <ScrollView>
+        <TextInput
+          style={styles.nhap}
+          placeholder={'Id'}
+          value={id}
+          onChangeText={(text) => {
+            setId(text);
+          }}
+        />
+        <TextInput
+          style={styles.nhap}
+          placeholder={'Name'}
+          value={name}
+          onChangeText={(text) => {
+            setName(text);
+          }}
+        />
+        <TextInput
+          style={styles.nhap}
+          placeholder={'Address'}
+          value={address}
+          onChangeText={(text) => {
+            setAddress(text);
+          }}
+        />
+
+        <TouchableOpacity
+          onPress={() => {
+            addDataBase(id, name, address);
+          }}>
+          <Text style={styles.btn}>Thêm</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            updateDataBase(id, name, address);
+          }}>
+          <Text style={styles.btn}>Sửa</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            deleteDataBase(id);
+          }}>
+          <Text style={styles.btn}>Xóa</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      <FlatList
+        data={data}
+        keyExtractor={(item, index) => `${index}`}
+        renderItem={({item, index}) => {
+          return (
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  createThreeButtonAlert(item);
+                }}>
+                <Text style={{borderBottomWidth: 3, width: WIDTH, padding: 10}}>
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+          );
+        }}
+      />
+      <StatusBar style="auto" />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  nhap: {
+    width: 350,
+    padding: 15,
+    marginBottom: 20,
+    borderWidth: 3,
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  btn: {
+    backgroundColor: 'aqua',
+    padding: 15,
+    marginBottom: 10,
   },
 });
-
-export default App;
