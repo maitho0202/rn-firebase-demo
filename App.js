@@ -21,6 +21,10 @@ import {
   Alert,
 } from 'react-native';
 
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+
 import {
   Header,
   LearnMoreLinks,
@@ -30,8 +34,13 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import * as firebase from 'firebase';
+import Login from './screens/Login';
+import Home from './screens/Home';
+import Upload from './screens/Upload';
 
 const WIDTH = Dimensions.get('window').width;
+
+const Stack = createNativeStackNavigator();
 
 export default App = () => {
   const [id, setId] = useState(null);
@@ -127,7 +136,7 @@ export default App = () => {
       });
   };
 
-  createThreeButtonAlert = (item) =>
+  createThreeButtonAlert = (item) => {
     Alert.alert('Alert Title', 'My Alert Msg', [
       {
         text: 'Xóa',
@@ -149,75 +158,86 @@ export default App = () => {
         },
       },
     ]);
-
+  }
+  
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <TextInput
-          style={styles.nhap}
-          placeholder={'Id'}
-          value={id}
-          onChangeText={(text) => {
-            setId(text);
-          }}
-        />
-        <TextInput
-          style={styles.nhap}
-          placeholder={'Name'}
-          value={name}
-          onChangeText={(text) => {
-            setName(text);
-          }}
-        />
-        <TextInput
-          style={styles.nhap}
-          placeholder={'Address'}
-          value={address}
-          onChangeText={(text) => {
-            setAddress(text);
-          }}
-        />
+    <>
+      {/* <View style={styles.container}>
+        <ScrollView>
+          <TextInput
+            style={styles.nhap}
+            placeholder={'Id'}
+            value={id}
+            onChangeText={(text) => {
+              setId(text);
+            }}
+          />
+          <TextInput
+            style={styles.nhap}
+            placeholder={'Name'}
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+            }}
+          />
+          <TextInput
+            style={styles.nhap}
+            placeholder={'Address'}
+            value={address}
+            onChangeText={(text) => {
+              setAddress(text);
+            }}
+          />
 
-        <TouchableOpacity
-          onPress={() => {
-            addDataBase(id, name, address);
-          }}>
-          <Text style={styles.btn}>Thêm</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            updateDataBase(id, name, address);
-          }}>
-          <Text style={styles.btn}>Sửa</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            deleteDataBase(id);
-          }}>
-          <Text style={styles.btn}>Xóa</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity
+            onPress={() => {
+              addDataBase(id, name, address);
+            }}>
+            <Text style={styles.btn}>Thêm</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              updateDataBase(id, name, address);
+            }}>
+            <Text style={styles.btn}>Sửa</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              deleteDataBase(id);
+            }}>
+            <Text style={styles.btn}>Xóa</Text>
+          </TouchableOpacity>
+        </ScrollView>
 
-      <FlatList
-        data={data}
-        keyExtractor={(item, index) => `${index}`}
-        renderItem={({item, index}) => {
-          return (
-            <View>
-              <TouchableOpacity
-                onPress={() => {
-                  createThreeButtonAlert(item);
-                }}>
-                <Text style={{borderBottomWidth: 3, width: WIDTH, padding: 10}}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          );
-        }}
-      />
-      <StatusBar style="auto" />
-    </View>
+        <FlatList
+          data={data}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({item, index}) => {
+            return (
+              <View>
+                <TouchableOpacity
+                  onPress={() => {
+                    createThreeButtonAlert(item);
+                  }}>
+                  <Text style={{borderBottomWidth: 3, width: WIDTH, padding: 10}}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
+        />
+        <StatusBar style="auto" />
+      </View> */}
+
+      {/* <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen options={{headerShown: false}} name='Login' component={Login} />
+          <Stack.Screen name='Home' component={Home} />
+        </Stack.Navigator>
+      </NavigationContainer> */}
+      <Upload />
+    </>
   );
 };
 
